@@ -1,14 +1,5 @@
 package conf
 
-import "time"
-
-type DatabaseTable struct {
-	ConfigID  	int
-	conf 		PythonConf
-	CreateTime	time.Time
-	UpdateTime	time.Time
-}
-
 
 type PythonConf struct {
 	BootstrapToken string     			`json:"BOOTSTRAP_TOKEN"`

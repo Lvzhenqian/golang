@@ -1,11 +1,11 @@
 package main
 
 import (
+	"bufio"
 	"fmt"
 	"golang.org/x/crypto/ssh"
 	"log"
 	"net"
-	"os"
 	"time"
 )
 
@@ -16,10 +16,20 @@ func main() {
 	}
 	defer session.Close()
 	cmd := "/bin/bash /root/a.sh"
-	session.Stderr = os.Stderr
-	session.Stdout = os.Stdout
+
+
+	reader,err := session.StdoutPipe()
+	if err != nil { log.Fatal(err)}
+	scanner :=bufio.NewScanner(reader)
+	go func() {
+		for scanner.Scan() {
+			fmt.Println(scanner.Text())
+		}
+	}()
 	session.Run(cmd)
+
 }
+
 
 func connetc(user string, password string, host string, port int) (*ssh.Session, error) {
 	var (
