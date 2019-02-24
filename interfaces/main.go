@@ -7,4 +7,3 @@ func main() {
 func myfunc(args ...interface{}) {
 
 }
-

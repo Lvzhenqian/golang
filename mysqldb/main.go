@@ -25,9 +25,9 @@ func main() {
 	}
 	defer db.Close()
 	db.Ping()
-	resp,err := db.Query("show tables;")
+	resp, err := db.Query("show tables;")
 	defer resp.Close()
-	for resp.Next(){
+	for resp.Next() {
 		resp.Scan()
 		fmt.Println()
 	}
@@ -35,5 +35,5 @@ func main() {
 		fmt.Printf("query error %v", err.Error())
 		return
 	}
-	fmt.Printf("%v",)
+	fmt.Printf("%v")
 }

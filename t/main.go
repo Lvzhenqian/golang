@@ -7,25 +7,25 @@ import (
 	"os"
 	"time"
 )
+
 type User struct {
-	Id int64
-	Name string
-	Salt string
-	Age int
-	Passwd string `xorm:"varchar(200)"`
+	Id      int64
+	Name    string
+	Salt    string
+	Age     int
+	Passwd  string    `xorm:"varchar(200)"`
 	Created time.Time `xorm:"created"`
 	Updated time.Time `xorm:"updated"`
 }
 
-
 func CreateTable() {
-	engine, err := xorm.NewEngine("mysql","root:sd-9898w@tcp(192.168.8.12:3306)/gopub?charset=utf8")
-	if err != nil{
+	engine, err := xorm.NewEngine("mysql", "root:sd-9898w@tcp(192.168.8.12:3306)/gopub?charset=utf8")
+	if err != nil {
 		return
 	}
 	errs := engine.Sync2(new(User))
-	if errs != nil{
-		fmt.Fprintf(os.Stderr,"err: %v\n",errs.Error())
+	if errs != nil {
+		fmt.Fprintf(os.Stderr, "err: %v\n", errs.Error())
 		return
 	}
 }

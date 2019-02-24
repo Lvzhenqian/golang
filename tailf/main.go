@@ -11,13 +11,13 @@ import (
 func main() {
 	go SourceData("t.txt")
 	go Tailf("t.txt")
-	for i:=0;i<60;i++{
+	for i := 0; i < 60; i++ {
 		//fmt.Printf("main %d\n",i)
-		time.Sleep(1*1e9)
+		time.Sleep(1 * 1e9)
 	}
 }
 
-func SourceData(FileName string)  {
+func SourceData(FileName string) {
 	buf, err := os.OpenFile(FileName, os.O_TRUNC|os.O_CREATE, 0666)
 	if err != nil {
 		return
@@ -30,32 +30,32 @@ func SourceData(FileName string)  {
 		//	break
 		//}
 		var str string
-		str = "now is "+ strconv.Itoa(n) + "\r\n"
+		str = "now is " + strconv.Itoa(n) + "\r\n"
 		//fmt.Print(str)
-		_,err := OutWrite.WriteString(str)
+		_, err := OutWrite.WriteString(str)
 		if err != nil {
 			return
 		}
 		OutWrite.Flush()
 		n++
-		time.Sleep(1*1e9)
+		time.Sleep(1 * 1e9)
 	}
 }
 
-func Tailf(Filename string)  {
+func Tailf(Filename string) {
 	buf, err := os.OpenFile(Filename, os.O_RDONLY, 0)
 	if err != nil {
-		fmt.Printf("ERR: %s",err.Error())
+		fmt.Printf("ERR: %s", err.Error())
 		return
 	}
 	defer buf.Close()
 	OutRead := bufio.NewReader(buf)
 	for {
-		line,err := OutRead.ReadString('\n')
-		if err != nil{
+		line, err := OutRead.ReadString('\n')
+		if err != nil {
 			continue
 		}
-		fmt.Printf("%s",line)
+		fmt.Printf("%s", line)
 	}
 
 }

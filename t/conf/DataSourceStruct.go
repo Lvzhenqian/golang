@@ -1,17 +1,16 @@
 package conf
 
-
 type PythonConf struct {
-	BootstrapToken string     			`json:"BOOTSTRAP_TOKEN"`
-	NODES          Nodes      			`json:"NODES"`
-	EXTENDNODE     map[string]string 	`json:"EXTENDNODE"`
-	SHRINKNODE     Shrinknode 			`json:"SHRINKNODE"`
-	SSH_SETTING    SSH_SETTING 			`json:"SSH_SETTING"`
-	ETCD           Etcd       			`json:"ETCD"`
-	NFS            NFS        			`json:"NFS"`
-	NGINX          Nginx      			`json:"NGINX"`
-	ENGINE         Engine     			`json:"ENGINE"`
-	MYSQL          Mysql      			`json:"MYSQL"`
+	BootstrapToken string            `json:"BOOTSTRAP_TOKEN"`
+	NODES          Nodes             `json:"NODES"`
+	EXTENDNODE     map[string]string `json:"EXTENDNODE"`
+	SHRINKNODE     Shrinknode        `json:"SHRINKNODE"`
+	SSH_SETTING    SSH_SETTING       `json:"SSH_SETTING"`
+	ETCD           Etcd              `json:"ETCD"`
+	NFS            NFS               `json:"NFS"`
+	NGINX          Nginx             `json:"NGINX"`
+	ENGINE         Engine            `json:"ENGINE"`
+	MYSQL          Mysql             `json:"MYSQL"`
 }
 
 type Engine struct {
@@ -40,7 +39,6 @@ type Etcd struct {
 	IPS []string `json:"IPS"`
 }
 
-
 type Mysql struct {
 	UseMysqlInK8S int64  `json:"USE_MYSQL_IN_K8S"`
 	MysqlAddress  string `json:"MYSQL_ADDRESS"`
@@ -64,11 +62,10 @@ type Nginx struct {
 }
 
 type Nodes struct {
-	APISERVER    	string `json:"APISERVER"`
-	APISERVER_URL 	string `json:"APISERVER_URL"`
-	IPS          	map[string]string    `json:"IPS"`
+	APISERVER     string            `json:"APISERVER"`
+	APISERVER_URL string            `json:"APISERVER_URL"`
+	IPS           map[string]string `json:"IPS"`
 }
-
 
 type SSH_SETTING struct {
 	SSH_PORT     string `json:"SSH_PORT"`
@@ -79,4 +76,3 @@ type SSH_SETTING struct {
 type Shrinknode struct {
 	NODES []string `json:"NODES"`
 }
-
