@@ -4,36 +4,54 @@ import (
 	"database/sql"
 	"fmt"
 	_ "github.com/go-sql-driver/mysql"
-	"strconv"
-	"strings"
 )
-
-func InitDB(username string, password string, host string, port int, database string) (db *sql.DB, err error) {
-	var portocol = strings.Join([]string{host, strconv.Itoa(port)}, ":")
-	var connect = []string{username, ":", password, "@", "tcp(", portocol, ")", "/", database}
-	DSN := strings.Join(connect, "")
-	fmt.Println(DSN)
-	db, err = sql.Open("mysql", DSN)
-	return db, err
+type DbClient struct {
+	b *sql.DB
 }
 
+func InitDB(username string, password string, host string, port int, database string, DbCharset string) (b *DbClient) {
+	var db = &DbClient{}
+	var err error
+	protocol := fmt.Sprintf("%v:%v", host, port)
+	DSN := fmt.Sprintf("%v:%v@tcp(%v)/%v?charset=%v&parseTime=true&loc=Local",
+		username, password, protocol, database, DbCharset)
+	if db.b, err = sql.Open("mysql", DSN); err != nil {
+		panic(err.Error())
+	} else {
+		if PingErr := db.b.Ping(); PingErr != nil {
+			panic(PingErr.Error())
+		} else {
+			return db
+		}
+	}
+}
+
+func (db *DbClient) InsertToDB(sq string,v ...interface{}) (int64,error) {
+	if stmt, e := db.b.Prepare(sq); e != nil{
+		panic(e.Error())
+	} else {
+		result, err := stmt.Exec(v...)
+		defer stmt.Close()
+		if err != nil {
+			panic(err.Error())
+		}
+		ids,GidErr := result.LastInsertId()
+		return ids,GidErr
+	}
+}
+
+
 func main() {
-	db, err := InitDB("root", "q13fvDipVup@dlfzsemq", "192.168.8.231", 3306, "ko_open")
-	if err != nil {
-		fmt.Printf("Connect err !! %v", err.Error())
-		return
+	db := InitDB("root", "q13fvDipVup@dlfzsemq",
+		"192.168.8.20", 13306, "ko_open","utf8")
+	defer db.b.Close()
+	ids, e := db.InsertToDB("insert into `ko_open`.`battle_game` (`gameID`,`appKey`,`appSecret`,`gameName`,`slide`) value (?,?,?,?,?)",
+		"201226",
+		"b90b138ab59f4e289fbd58182d4187bb",
+		"bf53a5a8b29c4198abe0e71c9e05d465",
+		"frigate", "")
+	if e != nil{
+		panic(e.Error())
 	}
-	defer db.Close()
-	db.Ping()
-	resp, err := db.Query("show tables;")
-	defer resp.Close()
-	for resp.Next() {
-		resp.Scan()
-		fmt.Println()
-	}
-	if err != nil {
-		fmt.Printf("query error %v", err.Error())
-		return
-	}
-	fmt.Printf("%v")
+	fmt.Println(ids)
 }

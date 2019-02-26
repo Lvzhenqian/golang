@@ -32,16 +32,16 @@ func CreateTable() {
 
 func main() {
 	CreateTable()
-	//route := gin.Default()
-	//route.GET("/ping", func(c *gin.Context) {
-	//	c.JSON(200,gin.H{"message":"pong"})
+	//route := gameserver.Default()
+	//route.GET("/ping", func(c *gameserver.Context) {
+	//	c.JSON(200,gameserver.H{"message":"pong"})
 	//})
-	//route.POST("/post", func(context *gin.Context) {
+	//route.POST("/post", func(context *gameserver.Context) {
 	//	var json conf.PythonConf
 	//	if err := context.ShouldBindJSON(&json); err !=nil{
-	//		context.JSON(http.StatusBadRequest,gin.H{"error":err.Error()})
+	//		context.JSON(http.StatusBadRequest,gameserver.H{"error":err.Error()})
 	//	}
-	//	context.JSON(http.StatusOK,gin.H{"status":"successfuly"})
+	//	context.JSON(http.StatusOK,gameserver.H{"status":"successfuly"})
 	//	fmt.Printf("%v",json)
 	//})
 	//route.Run()
