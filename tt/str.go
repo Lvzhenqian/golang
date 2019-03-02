@@ -2,15 +2,16 @@ package main
 
 import (
 	"fmt"
+	"github.com/knocknote/vitess-sqlparser/sqlparser"
 )
 
 func main() {
-	s := "了看大戏"
-	for _ , b :=range []byte(s){
-		fmt.Printf("%X ",b)
+	stmt, err := sqlparser.Parse("select * from user_items where user_id=1 order by created_at limit 3 offset 10")
+	if err != nil {
+		panic(err)
 	}
-	fmt.Println()
-	for i,ch := range  []rune(s) {
-		fmt.Printf("(%d %c) ",i,ch)
-	}
+	sqlparser.Walk(func(node sqlparser.SQLNode) (kontinue bool, err error) {
+		node.Format([]byte)
+	},	stmt)
+	fmt.Printf("stmt = %+v\n", stmt)
 }
