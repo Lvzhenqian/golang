@@ -3,8 +3,9 @@ package main
 import (
 	"bufio"
 	"bytes"
-	"fmt"
+	"github.com/gin-gonic/gin"
 	"github.com/op/go-logging"
+	"net/http"
 	"os"
 	"os/exec"
 	"sort"
@@ -17,6 +18,12 @@ var (
 	format = logging.MustStringFormatter(
 		"%{color}%{time:15:04:05.000} %{shortfunc} >> %{level:.4s} %{id:03x}%{color:reset} %{message}")
 )
+
+type Login struct {
+	Username string `form:"user" json:"user" binding:"required"`
+	Password string `form:"password" json:"password" binding:"required"`
+	IP  	 string `json: "ip"`
+}
 
 func init() {
 	backend := logging.NewLogBackend(os.Stdout, "", 0)
@@ -115,14 +122,19 @@ func manager(s []int) {
 }
 
 func main() {
-	//args := WhiteList("192.168.3.22")
-	//cmd := exec.Command("sudo" ,args...)
-	//b, _ := cmd.Output()
-	//fmt.Println(string(b))
-	s := getDeleteList()
-	manager(s)
-	fmt.Println(s)
-	//cmd1 :=addWhiteList("192.168.8.90")
-	//cmd2 := addWhiteList("192.168.8.91")
-	//fmt.Println(cmd1,cmd2)
+	router := gin.Default()
+	router.POST("/AddIP", func(c *gin.Context) {
+		var j Login
+		if c.BindJSON(&j) == nil{
+			if j.Username == "matchvs" && j.Password == "zw-9898w"{
+				DefaultList := getDeleteList()
+				manager(DefaultList)
+				cmd := addWhiteList(j.IP)
+				c.JSON(http.StatusOK,gin.H{"status":"Insert ok!!","cmd":cmd})
+			} else {
+				c.JSON(http.StatusUnauthorized,gin.H{"status":"unauthorized","cmd":""})
+			}
+		}
+	})
+	router.Run(":5000")
 }
