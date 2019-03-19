@@ -2,16 +2,33 @@ package main
 
 import (
 	"fmt"
-	"github.com/knocknote/vitess-sqlparser/sqlparser"
+	"io"
+	"strings"
 )
 
-func main() {
-	stmt, err := sqlparser.Parse("select * from user_items where user_id=1 order by created_at limit 3 offset 10")
-	if err != nil {
-		panic(err)
+type intGen func() int
+
+func (r intGen) Read(p []byte) (n int, err error) {
+	next := r()
+	if next > 10000 {
+		return 0, io.EOF
 	}
-	sqlparser.Walk(func(node sqlparser.SQLNode) (kontinue bool, err error) {
-		node.Format([]byte)
-	},	stmt)
-	fmt.Printf("stmt = %+v\n", stmt)
+	s := fmt.Sprintf("%d\n", next)
+	return strings.NewReader(s).Read(p)
+}
+
+func fibonacci() intGen {
+	a, b := 0, 1
+	return func() int {
+		a, b = b, a+b
+		return a
+	}
+}
+
+func main() {
+	f := fibonacci()
+	for i := 0; i <= 10; i++ {
+		fmt.Println(f())
+	}
+
 }
