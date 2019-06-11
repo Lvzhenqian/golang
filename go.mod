@@ -11,6 +11,7 @@ require (
 	github.com/mattn/go-runewidth v0.0.4 // indirect
 	github.com/op/go-logging v0.0.0-20160315200505-970db520ece7
 	github.com/pkg/sftp v1.10.0
+	github.com/sparrc/go-ping v0.0.0-20181106165434-ef3ab45e41b0
 	golang.org/x/crypto v0.0.0-20190510104115-cbcb75029529
 	google.golang.org/appengine v1.6.0 // indirect
 	gopkg.in/cheggaaa/pb.v1 v1.0.28
