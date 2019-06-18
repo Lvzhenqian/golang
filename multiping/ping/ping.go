@@ -13,24 +13,37 @@ import (
 var Data = []byte("hello")
 
 type ping struct {
-	Addr string
-	Conn net.Conn
-	Data []byte
-	Timeout int
-	Count  int
-	PacketsSent  int
-	PacketsRecv	 int
-
+	Addr 		string
+	Conn 		net.Conn
+	Data 		[]byte
+	Timeout 	time.Duration
+	Interval 	time.Duration
+	Count  		int
+	PacketsSent int32
+	PacketsRecv	int32
+	OnRecv 		func(r Reply)
+	OnTimeOut  	func(r Reply)
+	seq			int
+	lost		int
 }
 
 type Reply struct {
-	Time  int64
-	TTL   uint8
-	Error error
+	Addr 	string
+	Seq		int
+	Time  	time.Duration
+	TTL   	uint8
+	Error 	error
+}
+
+type Statistics struct {
+	Addr  			string
+	SendPackets		int32
+	RecvPackets		int32
+	LostPercent		float64
 }
 
 func NewPinger(addr string,c int) (*ping,error) {
-	var count int
+	p := new(ping)
 	ipaddr, err := net.ResolveIPAddr("ip", addr)
 	if err != nil {
 		return nil, err
@@ -39,12 +52,8 @@ func NewPinger(addr string,c int) (*ping,error) {
 	if err != nil {
 		return nil, err
 	}
-	if c > 0 {
-		count = c
-	} else {
-		count = 0
-	}
-	return &ping{Data: wb, Addr: ipaddr.String(),Timeout: 5,Count: count}, nil
+	p = &ping{Data: wb, Addr: ipaddr.String(),Timeout: 5,Count: c}
+	return p, nil
 }
 
 func MarshalMsg(req int, data []byte) ([]byte, error) {
@@ -59,51 +68,60 @@ func MarshalMsg(req int, data []byte) ([]byte, error) {
 	return wm.Marshal(nil)
 }
 
-func (self *ping) Close() error {
-	return self.Conn.Close()
+func (p *ping) Close() error {
+	return p.Conn.Close()
 }
 
-func (self *ping) Run() {
+func (p *ping) GetConn() {
 	var ConnErr error
-	self.Conn, ConnErr = net.Dial("ip4:icmp", self.Addr)
+	p.Conn, ConnErr = net.Dial("ip4:icmp", p.Addr)
 	if ConnErr != nil {
 		panic(ConnErr)
 	}
-	self.Conn.SetDeadline(time.Now().Add(time.Duration(self.Timeout) * time.Second))
+	settimouterr := p.Conn.SetDeadline(time.Now().Add(p.Timeout))
+	if settimouterr != nil {
+		panic(settimouterr)
+	}
+}
+
+func (p *ping) Run() {
 	c := 0
 	for {
-		if self.Count > 0 && c >= self.Count {
+		if p.Count > 0 && c >= p.Count {
 			return
 		}
-		r := sendPingMsg(self.Conn, self.Data)
+		p.GetConn()
+		r := p.sendPingMsg()
 		if r.Error != nil {
 			if opt, ok := r.Error.(*net.OpError); ok && opt.Timeout() {
-				fmt.Printf("From %s reply: TimeOut\n", self.Addr)
-				self.Conn, ConnErr = net.Dial("ip4:icmp", self.Addr)
-				if ConnErr != nil {
-					return
+				r.Addr = p.Addr
+				r.Seq = p.seq
+				if p.OnTimeOut != nil {
+					p.OnTimeOut(r)
 				}
-			} else {
-				fmt.Printf("From %s reply: %s\n", self.Addr, r.Error)
+				p.lost++
 			}
 		} else {
-			fmt.Printf("From %s reply: time=%d ttl=%d\n", self.Addr, r.Time, r.TTL)
+			if p.OnRecv != nil{
+				p.OnRecv(r)
+			}
+			p.PacketsRecv++
 		}
-		time.Sleep(1e9)
+		time.Sleep(p.Interval)
 		c++
 	}
 }
 
-func sendPingMsg(c net.Conn, wb []byte) (reply Reply) {
+func (p *ping) sendPingMsg() (reply Reply) {
 	start := time.Now()
-
-	if _, reply.Error = c.Write(wb); reply.Error != nil {
+	p.seq++
+	if _, reply.Error = p.Conn.Write(p.Data); reply.Error != nil {
 		return
 	}
-
-	rb := make([]byte, 1500)
+	p.PacketsSent++
+	rb := make([]byte, 500)
 	var n int
-	n, reply.Error = c.Read(rb)
+	n, reply.Error = p.Conn.Read(rb)
 	if reply.Error != nil {
 		return
 	}
@@ -125,8 +143,7 @@ func sendPingMsg(c net.Conn, wb []byte) (reply Reply) {
 
 	switch rm.Type {
 	case ipv4.ICMPTypeEchoReply:
-		t := int64(duration / time.Millisecond)
-		reply = Reply{t, ttl, nil}
+		reply = Reply{p.Addr,p.seq,duration, ttl, nil}
 	case ipv4.ICMPTypeDestinationUnreachable:
 		reply.Error = errors.New("Destination Unreachable")
 	default:
@@ -135,4 +152,7 @@ func sendPingMsg(c net.Conn, wb []byte) (reply Reply) {
 	return
 }
 
-
+func (p *ping) Getstatistics() Statistics {
+	loss := float64(p.lost) / float64(p.PacketsSent) * 100
+	return Statistics{p.Addr,p.PacketsSent,p.PacketsRecv,loss}
+}
