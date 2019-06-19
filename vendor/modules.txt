@@ -1,3 +1,7 @@
+# github.com/BurntSushi/toml v0.3.1
+github.com/BurntSushi/toml
+# github.com/beorn7/perks v1.0.0
+github.com/beorn7/perks/quantile
 # github.com/gin-contrib/sse v0.0.0-20190301062529-5545eab6dad3
 github.com/gin-contrib/sse
 # github.com/gin-gonic/gin v1.4.0
@@ -29,6 +33,8 @@ github.com/kr/fs
 github.com/mattn/go-isatty
 # github.com/mattn/go-runewidth v0.0.4
 github.com/mattn/go-runewidth
+# github.com/matttproud/golang_protobuf_extensions v1.0.1
+github.com/matttproud/golang_protobuf_extensions/pbutil
 # github.com/modern-go/concurrent v0.0.0-20180306012644-bacd9c7ef1dd
 github.com/modern-go/concurrent
 # github.com/modern-go/reflect2 v1.0.1
@@ -39,8 +45,28 @@ github.com/op/go-logging
 github.com/pkg/errors
 # github.com/pkg/sftp v1.10.0
 github.com/pkg/sftp
+# github.com/prometheus/client_golang v1.0.0
+github.com/prometheus/client_golang/prometheus
+github.com/prometheus/client_golang/prometheus/promauto
+github.com/prometheus/client_golang/prometheus/promhttp
+github.com/prometheus/client_golang/prometheus/internal
+# github.com/prometheus/client_model v0.0.0-20190129233127-fd36f4220a90
+github.com/prometheus/client_model/go
+# github.com/prometheus/common v0.4.1
+github.com/prometheus/common/expfmt
+github.com/prometheus/common/model
+github.com/prometheus/common/internal/bitbucket.org/ww/goautoneg
+# github.com/prometheus/procfs v0.0.2
+github.com/prometheus/procfs
+github.com/prometheus/procfs/internal/fs
 # github.com/sparrc/go-ping v0.0.0-20181106165434-ef3ab45e41b0
 github.com/sparrc/go-ping
+# github.com/tidwall/gjson v1.2.1
+github.com/tidwall/gjson
+# github.com/tidwall/match v1.0.1
+github.com/tidwall/match
+# github.com/tidwall/pretty v1.0.0
+github.com/tidwall/pretty
 # github.com/ugorji/go v1.1.4
 github.com/ugorji/go/codec
 # golang.org/x/crypto v0.0.0-20190510104115-cbcb75029529
@@ -54,11 +80,12 @@ golang.org/x/crypto/internal/subtle
 # golang.org/x/net v0.0.0-20190503192946-f4e77d36d62c
 golang.org/x/net/icmp
 golang.org/x/net/ipv4
-golang.org/x/net/ipv6
 golang.org/x/net/internal/iana
 golang.org/x/net/internal/socket
+golang.org/x/net/ipv6
 golang.org/x/net/bpf
 # golang.org/x/sys v0.0.0-20190412213103-97732733099d
+golang.org/x/sys/windows
 golang.org/x/sys/unix
 golang.org/x/sys/cpu
 # google.golang.org/appengine v1.6.0

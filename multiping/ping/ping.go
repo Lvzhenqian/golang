@@ -3,8 +3,10 @@ package ping
 import (
 	"errors"
 	"fmt"
+	"github.com/prometheus/client_golang/prometheus"
 	"golang.org/x/net/icmp"
 	"golang.org/x/net/ipv4"
+	"golang/multiping/state"
 	"net"
 	"os"
 	"time"
@@ -85,12 +87,16 @@ func (p *ping) GetConn() {
 }
 
 func (p *ping) Run() {
+	psend := state.PingerSend.With(prometheus.Labels{"ip":p.Addr})
+	precv := state.PingerRecv.With(prometheus.Labels{"ip":p.Addr})
+	plost := state.PingerLost.With(prometheus.Labels{"ip":p.Addr})
 	c := 0
 	for {
 		if p.Count > 0 && c >= p.Count {
 			return
 		}
 		p.GetConn()
+		psend.Inc()
 		r := p.sendPingMsg()
 		if r.Error != nil {
 			if opt, ok := r.Error.(*net.OpError); ok && opt.Timeout() {
@@ -100,12 +106,14 @@ func (p *ping) Run() {
 					p.OnTimeOut(r)
 				}
 				p.lost++
+				plost.Inc()
 			}
 		} else {
 			if p.OnRecv != nil{
 				p.OnRecv(r)
 			}
 			p.PacketsRecv++
+			precv.Inc()
 		}
 		time.Sleep(p.Interval)
 		c++
@@ -127,6 +135,8 @@ func (p *ping) sendPingMsg() (reply Reply) {
 	}
 
 	duration := time.Since(start)
+	ptime := state.PingerTime.With(prometheus.Labels{"ip":p.Addr})
+	ptime.Observe(float64(duration) / float64(time.Millisecond))
 	ttl := uint8(rb[8])
 	rb = func(b []byte) []byte {
 		if len(b) < 20 {
